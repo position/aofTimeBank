@@ -6,12 +6,14 @@ import { AofTimebankService } from './app.service';
     template:`<canvas #aofTimebankCanvas width="240" height="96"></canvas>`
 })
 
+
+
 export class AofTimebankComponent implements AfterViewInit {
-    private context: CanvasRenderingContext2D;
-    private imgDynamite: any = new Image(); //다이너마이트 이미지
-    private imgRope: any = new Image(); //로프 이미지
-    private imgFire: any = new Image(); //불꽃 이미지
-    private imgExplosion: any = new Image(); //폭발 이미지
+    private context: CanvasRenderingContext2D;    
+    private imgDynamite: HTMLImageElement = new Image(); //다이너마이트 이미지
+    private imgRope: HTMLImageElement = new Image(); //로프 이미지
+    private imgFire: HTMLImageElement = new Image(); //불꽃 이미지
+    private imgExplosion: HTMLImageElement = new Image(); //폭발 이미지
     private anmationFrame: any; //requestAnimationFrame
     private bezierXY: Object; //곡선 x, y 좌표값
     private percent: number = 0;
@@ -26,6 +28,12 @@ export class AofTimebankComponent implements AfterViewInit {
 	private tickCount = 0;
     private alphaValue:number = 0;//알파 값
     private alphaChangeAmount:number = 0.08;//알파 속도 값
+
+
+    public explosion: any;
+    public dynamite: any;
+
+    public fire: any;
 
     @ViewChild('aofTimebankCanvas') aofTimebankCanvas: any;
 
@@ -47,17 +55,6 @@ export class AofTimebankComponent implements AfterViewInit {
             numberOfFrames: 3,
             ticksPerFrame: 3,
             isSprite: true
-        }
-        this.dynamiteSpriteOptions = {
-            name: 'dynamite',
-            width: 156,
-            height: 50,
-            dx: 0,
-            dy: 20,
-            image: this.imgDynamite,
-            numberOfFrames: 2,
-            ticksPerFrame: 10,
-            isSprite: false
         }
         this.ropeSpriteOptions = {
             name: 'rope',
@@ -84,15 +81,24 @@ export class AofTimebankComponent implements AfterViewInit {
     }
     
     ngAfterViewInit() {
-        let canvas = this.aofTimebankCanvas.nativeElement;
+        let canvas: HTMLCanvasElement = this.aofTimebankCanvas.nativeElement;
         this.context = canvas.getContext('2d');
         this.context.canvas.style.width = '100%';
         console.log(this.context);
+
+        //this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions, 0);
+        //this.dynamite = new createSpriteObject(this.context, this.dynamiteSpriteOptions, 0);
+        this.explosion = new AofTimebankService(this.context, this.explosionSpriteOptions, 0);
+        this.fire = new createSpriteObject(this.context, this.ropeSpriteOptions, 0, this.bezierXY);
+        
+        
+        console.log(this.explosion);
         
         this.motion();
     }
     
     public motion = () => {
+        
         this.context.clearRect(0, 0, 240, 96);
         this.percent += (this.direction * this.fps);
         
@@ -114,7 +120,8 @@ export class AofTimebankComponent implements AfterViewInit {
         if (this.percent > 98) {
             //console.log('시간초과 폭파 뻥!!');
             this.alphaValue = 1;
-            this.explosionDrawImages(this.bezierXY, this.explosionSpriteOptions, this.alphaValue);
+            this.explosion.render();
+           //this.explosionDrawImages(this.bezierXY, this.explosionSpriteOptions, this.alphaValue);
             if(this.isTimeBomb && this.percent < 100){
                 //타임뱅크가 종료되면 아래 메서드 실행
                 this.timebankEnd();
@@ -129,6 +136,9 @@ export class AofTimebankComponent implements AfterViewInit {
         this.drawBezierCurve(this.percent);
         
         this.fireSpriteDrawImage(this.bezierXY, this.ropeSpriteOptions);
+        //this.fire.render();
+        //this.dynamite.render();
+        
         this.dynamiteDrawImages(this.imgDynamite, 0, 0, this.alphaValue);
         this.dynamiteDrawImages(this.imgDynamite, 78, 0, this.alphaValue);
         this.fireSpriteDrawImage(this.bezierXY, this.fireSpriteOptions);
@@ -145,7 +155,7 @@ export class AofTimebankComponent implements AfterViewInit {
             this.context.drawImage(image, x, y, 78, 50, 0, 20, 78, 50);
         }
     }
-
+/*
     public explosionDrawImages(point: any = {}, options: any, alpha: number = 0){
         let name = options.name,
             image = options.image,
@@ -188,7 +198,7 @@ export class AofTimebankComponent implements AfterViewInit {
         } 
         this.context.restore();
     }
-    
+  */  
     public fireSpriteDrawImage(point: any = {}, options: any, alpha: number = 1){
         if(!this.isTimeBomb){
             let name = options.name,
@@ -290,5 +300,99 @@ export class AofTimebankComponent implements AfterViewInit {
 
     public timebankEnd(){
         console.log('타임 뱅크 종료!!!!!');
+        //this.dynamite = null;
     }
+}
+
+class createSpriteObject {
+    public context: CanvasRenderingContext2D;
+    public width: number;
+    public height: number;
+    public dx: number;
+    public dy: number;
+    public ticksPerFrame: number;
+    public numberOfFrames: number;
+    public image: HTMLImageElement;
+    public frameIndex = 0;
+    public tickCount = 0;
+    public spriteName: string;
+    public alphaValue: number;
+    public isSprite: boolean;
+    public point: any;
+    
+    constructor(
+        context: CanvasRenderingContext2D,
+        options: any,
+        alpha: number,
+        point: any = {}
+        /*
+        dx: number,
+        dy: number,
+        width: number,
+        height: number,
+        ticksPerFrame: number,
+        numberOfFrames: number,
+        image: HTMLImageElement
+        */
+        
+    ){
+        this.context = context;
+        this.spriteName = options.name;
+        this.dx = options.dx;
+        this.dy = options.dy;
+        this.width = options.width;
+        this.height = options.height;
+        this.ticksPerFrame = options.ticksPerFrame;
+        this.numberOfFrames = options.numberOfFrames;
+        this.image = options.image;
+        this.isSprite = options.isSprite;
+        this.alphaValue = alpha;
+        this.point = point;
+        
+    }
+
+    public update(){
+        this.tickCount += 1;
+        if (this.tickCount > this.ticksPerFrame) {
+            this.tickCount = 0;
+            // If the current frame index is in range
+            if (this.frameIndex < this.numberOfFrames - 1) {	
+                // Go to the next frame
+                this.frameIndex += 1;
+            } else {
+                this.frameIndex = 0;
+            }
+        }
+       // console.log('update');
+    }
+
+    public render(){
+        this.update();
+        // Clear the canvas
+        //this.context.clearRect(0, 0, this.width, this.height);
+        
+        // Draw the animation
+        if(this.isSprite){
+            this.context.drawImage(
+                this.image,
+                this.frameIndex * this.width / this.numberOfFrames,
+                0,
+                this.width / this.numberOfFrames,
+                this.height,
+                this.dx,
+                this.dy,
+                this.width / this.numberOfFrames,
+                this.height
+            );
+        } else {
+            //이미지 스프라이트가 아닌것은 로프이미지 밖에 없으므로 아래 코드 실행
+            this.context.drawImage(this.image, this.dx, this.dy, this.width, this.height, 0, 20, this.width, this.height);
+            //로프가 점점 줄어듬
+           // this.context.clearRect(this.dx, this.dy, this.width, this.height);
+        }
+        //this.context.drawImage(image, x, y, 78, 50, 0, 20, 78, 50);
+
+        //console.log('render', this.width);
+    }
+
 }
