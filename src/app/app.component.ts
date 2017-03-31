@@ -28,10 +28,8 @@ export class AofTimebankComponent implements AfterViewInit {
     private alphaValue:number = 0;//알파 값
     private alphaChangeAmount:number = 0.08;//알파 속도 값
 
-
     public explosion: any;
     public dynamite: any;
-
     public fire: any;
 
     @ViewChild('aofTimebankCanvas') aofTimebankCanvas: any;
@@ -74,7 +72,7 @@ export class AofTimebankComponent implements AfterViewInit {
             dy: 0,
             image: this.imgExplosion,
             numberOfFrames: 15,
-            ticksPerFrame: 5,
+            ticksPerFrame: 3,
             isSprite: true
         }
     }
@@ -84,10 +82,7 @@ export class AofTimebankComponent implements AfterViewInit {
         this.context = canvas.getContext('2d');
         this.context.canvas.style.width = '100%';
         console.log(this.context);
-
-        this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions, 0);
-        this.fire = new createSpriteObject(this.context, this.ropeSpriteOptions, 0, this.bezierXY);
-        
+        this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions);
         this.motion();
     }
     
@@ -115,7 +110,6 @@ export class AofTimebankComponent implements AfterViewInit {
             //console.log('시간초과 폭파 뻥!!');
             this.alphaValue = 1;
             this.explosion.render();
-           //this.explosionDrawImages(this.bezierXY, this.explosionSpriteOptions, this.alphaValue);
             if(this.isTimeBomb && this.percent < 100){
                 //타임뱅크가 종료되면 아래 메서드 실행
                 this.timebankEnd();
@@ -128,11 +122,7 @@ export class AofTimebankComponent implements AfterViewInit {
         }
 
         this.drawBezierCurve(this.percent);
-        
         this.fireSpriteDrawImage(this.bezierXY, this.ropeSpriteOptions);
-        //this.fire.render();
-        //this.dynamite.render();
-        
         this.dynamiteDrawImages(this.imgDynamite, 0, 0, this.alphaValue);
         this.dynamiteDrawImages(this.imgDynamite, 78, 0, this.alphaValue);
         this.fireSpriteDrawImage(this.bezierXY, this.fireSpriteOptions);
@@ -149,50 +139,7 @@ export class AofTimebankComponent implements AfterViewInit {
             this.context.drawImage(image, x, y, 78, 50, 0, 20, 78, 50);
         }
     }
-/*
-    public explosionDrawImages(point: any = {}, options: any, alpha: number = 0){
-        let name = options.name,
-            image = options.image,
-            width = options.width,
-            height = options.height,
-            dx = options.dx,
-            dy = options.dy,
-            ticksPerFrame = options.ticksPerFrame || 0,
-            numberOfFrames = options.numberOfFrames || 1,
-            isSprite = options.isSprite;
-
-        this.context.save();
-        this.context.globalAlpha = alpha;
-        this.context.translate(0, 0);
-
-        //이미지 스프라이트인 이미지만 아래 코드 실행
-        if(isSprite){
-            this.tickCount += 1;
-            if (this.tickCount > ticksPerFrame) {
-                this.tickCount = 0;
-                // If the current frame index is in range
-                if (this.frameIndex < numberOfFrames - 1) {	
-                    // Go to the next frame
-                    this.frameIndex += 1;
-                } else {
-                    this.frameIndex = 0;
-                }
-            }
-            this.context.drawImage(
-                image, 
-                this.frameIndex * width / numberOfFrames, 
-                0, 
-                width / numberOfFrames,
-                height,
-                0, 
-                0, 
-                width / numberOfFrames,
-                height
-            );
-        } 
-        this.context.restore();
-    }
-  */  
+    
     public fireSpriteDrawImage(point: any = {}, options: any, alpha: number = 1){
         if(!this.isTimeBomb){
             let name = options.name,
@@ -258,7 +205,6 @@ export class AofTimebankComponent implements AfterViewInit {
             if (sliderValue < 100) {
                 let percent = sliderValue / 99;
                 this.isTimeBomb = percent > 1 ? true : false;
-                //console.log(this.isTimeBomb, percent);
                 this.bezierXY = this.getCubicBezierXYatPercent({
                     x: 208,
                     y: 42
@@ -275,7 +221,7 @@ export class AofTimebankComponent implements AfterViewInit {
             }
         }
     }
-    
+
     public getCubicBezierXYatPercent(startPt, controlPt1, controlPt2, endPt, percent) {
         let x = this.cubicN(percent, startPt.x, controlPt1.x, controlPt2.x, endPt.x);
         let y = this.cubicN(percent, startPt.y, controlPt1.y, controlPt2.y, endPt.y);
@@ -291,10 +237,9 @@ export class AofTimebankComponent implements AfterViewInit {
         let t3 = t2 * pct;
         return a + (-a * 3 + pct * (3 * a - a * pct)) * pct + (3 * b + pct * (-6 * b + b * 3 * pct)) * pct + (c * 3 - c * 3 * pct) * t2 + d * t3;
     }
-
+    
     public timebankEnd(){
         console.log('타임 뱅크 종료!!!!!');
-        //this.dynamite = null;
     }
 }
 
@@ -312,13 +257,10 @@ class createSpriteObject {
     public spriteName: string;
     public alphaValue: number;
     public isSprite: boolean;
-    public point: any;
     
     constructor(
-        context: CanvasRenderingContext2D,
-        options: any,
-        alpha: number,
-        point: any = {}
+        context: CanvasRenderingContext2D = null,
+        options: any = {}
     ){
         this.context = context;
         this.spriteName = options.name;
@@ -330,9 +272,6 @@ class createSpriteObject {
         this.numberOfFrames = options.numberOfFrames;
         this.image = options.image;
         this.isSprite = options.isSprite;
-        this.alphaValue = alpha;
-        this.point = point;
-        
     }
 
     public update(){
@@ -352,27 +291,18 @@ class createSpriteObject {
     public render(){
         this.update();
         // Clear the canvas
-        //this.context.clearRect(0, 0, this.width, this.height);
+        this.context.clearRect(0, 0, this.width, this.height);
         // Draw the animation
-        if(this.isSprite){
-            this.context.drawImage(
-                this.image,
-                this.frameIndex * this.width / this.numberOfFrames,
-                0,
-                this.width / this.numberOfFrames,
-                this.height,
-                this.dx,
-                this.dy,
-                this.width / this.numberOfFrames,
-                this.height
-            );
-        } else {
-            //이미지 스프라이트가 아닌것은 로프이미지 밖에 없으므로 아래 코드 실행
-            this.context.drawImage(this.image, this.dx, this.dy, this.width, this.height, 0, 20, this.width, this.height);
-            //로프가 점점 줄어듬
-           // this.context.clearRect(this.dx, this.dy, this.width, this.height);
-        }
-        //this.context.drawImage(image, x, y, 78, 50, 0, 20, 78, 50);
+        this.context.drawImage(
+            this.image,
+            this.frameIndex * this.width / this.numberOfFrames,
+            0,
+            this.width / this.numberOfFrames,
+            this.height,
+            this.dx,
+            this.dy,
+            this.width / this.numberOfFrames,
+            this.height
+        );
     }
-
 }
