@@ -27,11 +27,8 @@ export class AofTimebankComponent implements AfterViewInit {
 	private tickCount = 0;
     private alphaValue:number = 0;//알파 값
     private alphaChangeAmount:number = 0.08;//알파 속도 값
-
-    public explosion: any;
-    public dynamite: any;
-    public fire: any;
-
+    private explosionSprite: any;
+    
     @ViewChild('aofTimebankCanvas') aofTimebankCanvas: any;
 
     constructor( ){
@@ -40,8 +37,6 @@ export class AofTimebankComponent implements AfterViewInit {
         this.imgRope.src = 'assets/img/rope.png';
         this.imgFire.src = 'assets/img/dynamite_fire_sprite.png';
         this.imgExplosion.src = 'assets/img/explosion_sprite.png';
-
-        console.log('test');
 
         //각각의 스프라이트 이미지 옵션 객체 생성
         this.fireSpriteOptions = {
@@ -84,7 +79,7 @@ export class AofTimebankComponent implements AfterViewInit {
         this.context = canvas.getContext('2d');
         this.context.canvas.style.width = '100%';
         console.log(this.context);
-        this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions);
+        this.explosionSprite = new createSpriteObject(this.context, this.explosionSpriteOptions);
         this.motion();
     }
     
@@ -100,8 +95,8 @@ export class AofTimebankComponent implements AfterViewInit {
         if(this.percent >= 60){
             //console.log('빨간색 경고 다이너마이트 깜빡깜빡');
             this.alphaValue += this.alphaChangeAmount;
-            if (this.alphaValue >= 1) {
-                this.alphaValue = 1;
+            if (this.alphaValue >= 0.7) {
+                this.alphaValue = 0.7;
                 this.alphaChangeAmount *= -1;
             } else if ( this.alphaValue <= 0 ) {
                 this.alphaValue = 0;
@@ -111,7 +106,7 @@ export class AofTimebankComponent implements AfterViewInit {
         if (this.percent > 98) {
             //console.log('시간초과 폭파 뻥!!');
             this.alphaValue = 1;
-            this.explosion.render();
+            this.explosionSprite.render();
             if(this.isTimeBomb && this.percent < 100){
                 //타임뱅크가 종료되면 아래 메서드 실행
                 this.timebankEnd();
