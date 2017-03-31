@@ -41,6 +41,8 @@ export class AofTimebankComponent implements AfterViewInit {
         this.imgFire.src = 'assets/img/dynamite_fire_sprite.png';
         this.imgExplosion.src = 'assets/img/explosion_sprite.png';
 
+        console.log('test');
+
         //각각의 스프라이트 이미지 옵션 객체 생성
         this.fireSpriteOptions = {
             name: 'fire',
