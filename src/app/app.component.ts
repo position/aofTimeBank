@@ -1,12 +1,11 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { AofTimebankService } from './app.service';
+import { iSprite } from './app.interface';
 
 @Component({
     selector: 'aof-timebank',
     template:`<canvas #aofTimebankCanvas width="240" height="96"></canvas>`
 })
-
-
 
 export class AofTimebankComponent implements AfterViewInit {
     private context: CanvasRenderingContext2D;    
@@ -20,10 +19,10 @@ export class AofTimebankComponent implements AfterViewInit {
     private direction: number = 1;
     private fps: number = 0.4; //속도조절
     private isTimeBomb: boolean = false; //심지가 타고 있는 중인가?
-    private fireSpriteOptions: Object; //
-    private dynamiteSpriteOptions: Object;
-    private ropeSpriteOptions: Object;
-    private explosionSpriteOptions: Object;
+    private fireSpriteOptions: iSprite; //
+    private dynamiteSpriteOptions: iSprite;
+    private ropeSpriteOptions: iSprite;
+    private explosionSpriteOptions: iSprite;
     private frameIndex = 0;
 	private tickCount = 0;
     private alphaValue:number = 0;//알파 값
@@ -37,7 +36,7 @@ export class AofTimebankComponent implements AfterViewInit {
 
     @ViewChild('aofTimebankCanvas') aofTimebankCanvas: any;
 
-    constructor( aofTimebankService: AofTimebankService){
+    constructor( ){
         //이미지 객체의 src request를 미리 받아옴
         this.imgDynamite.src = 'assets/img/dynamite_sprite.png';
         this.imgRope.src = 'assets/img/rope.png';
@@ -86,13 +85,8 @@ export class AofTimebankComponent implements AfterViewInit {
         this.context.canvas.style.width = '100%';
         console.log(this.context);
 
-        //this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions, 0);
-        //this.dynamite = new createSpriteObject(this.context, this.dynamiteSpriteOptions, 0);
-        this.explosion = new AofTimebankService(this.context, this.explosionSpriteOptions, 0);
+        this.explosion = new createSpriteObject(this.context, this.explosionSpriteOptions, 0);
         this.fire = new createSpriteObject(this.context, this.ropeSpriteOptions, 0, this.bezierXY);
-        
-        
-        console.log(this.explosion);
         
         this.motion();
     }
@@ -325,16 +319,6 @@ class createSpriteObject {
         options: any,
         alpha: number,
         point: any = {}
-        /*
-        dx: number,
-        dy: number,
-        width: number,
-        height: number,
-        ticksPerFrame: number,
-        numberOfFrames: number,
-        image: HTMLImageElement
-        */
-        
     ){
         this.context = context;
         this.spriteName = options.name;
@@ -363,14 +347,12 @@ class createSpriteObject {
                 this.frameIndex = 0;
             }
         }
-       // console.log('update');
     }
 
     public render(){
         this.update();
         // Clear the canvas
         //this.context.clearRect(0, 0, this.width, this.height);
-        
         // Draw the animation
         if(this.isSprite){
             this.context.drawImage(
@@ -391,8 +373,6 @@ class createSpriteObject {
            // this.context.clearRect(this.dx, this.dy, this.width, this.height);
         }
         //this.context.drawImage(image, x, y, 78, 50, 0, 20, 78, 50);
-
-        //console.log('render', this.width);
     }
 
 }
