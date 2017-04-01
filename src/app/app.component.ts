@@ -1,5 +1,4 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { AofTimebankService } from './app.service';
 import { iSprite } from './app.interface';
 
 @Component({
