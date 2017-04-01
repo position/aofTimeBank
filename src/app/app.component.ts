@@ -78,7 +78,7 @@ export class AofTimebankComponent implements AfterViewInit {
         this.context = canvas.getContext('2d');
         this.context.canvas.style.width = '100%';
         console.log(this.context);
-        this.explosionSprite = new createSpriteObject(this.context, this.explosionSpriteOptions);
+        this.explosionSprite = new createSpriteImage(this.context, this.explosionSpriteOptions);
         this.motion();
     }
     
@@ -239,7 +239,7 @@ export class AofTimebankComponent implements AfterViewInit {
     }
 }
 
-class createSpriteObject {
+class createSpriteImage {
     public context: CanvasRenderingContext2D;
     public width: number;
     public height: number;
