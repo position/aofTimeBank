@@ -25,7 +25,7 @@ export class AofTimebankComponent implements AfterViewInit {
     private frameIndex = 0;
 	private tickCount = 0;
     private alphaValue:number = 0;//알파 값
-    private alphaChangeAmount:number = 0.08;//알파 속도 값
+    private alphaChangeAmount:number = 0.05;//알파 속도 값
     private explosionSprite: any;
     
     @ViewChild('aofTimebankCanvas') aofTimebankCanvas: any;
