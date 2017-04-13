@@ -108,7 +108,7 @@ export class AofTimebankComponent implements AfterViewInit {
             this.explosionSprite.render();
             if(this.isTimeBomb && this.percent < 100){
                 //타임뱅크가 종료되면 아래 메서드 실행
-                this.timebankEnd();
+                this.endTimebank();
             }
         }
         if(this.percent > 120){
@@ -234,7 +234,7 @@ export class AofTimebankComponent implements AfterViewInit {
         return a + (-a * 3 + pct * (3 * a - a * pct)) * pct + (3 * b + pct * (-6 * b + b * 3 * pct)) * pct + (c * 3 - c * 3 * pct) * t2 + d * t3;
     }
     
-    public timebankEnd(){
+    public endTimebank(){
         console.log('타임 뱅크 종료!!!!!');
     }
 }
